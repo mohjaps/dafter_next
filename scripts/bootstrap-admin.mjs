@@ -10,8 +10,8 @@ import postgres from "postgres";
 
 const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 const optional = process.argv.includes("--optional");
-if (optional && (!url || !process.env.BOOTSTRAP_EMAIL || !process.env.BOOTSTRAP_PHONE || !process.env.BOOTSTRAP_PASSWORD)) {
-  const missing = ["BOOTSTRAP_EMAIL", "BOOTSTRAP_PHONE", "BOOTSTRAP_PASSWORD"].filter((n) => !process.env[n]);
+if (optional && (!url || !process.env.BOOTSTRAP_EMAIL || !process.env.BOOTSTRAP_PASSWORD)) {
+  const missing = ["BOOTSTRAP_EMAIL", "BOOTSTRAP_PASSWORD"].filter((n) => !process.env[n]);
   console.log(`[bootstrap-admin] skipping: not set: ${url ? missing.join(", ") : "DATABASE_URL"}`);
   process.exit(0);
 }
@@ -26,11 +26,14 @@ async function ask(name, question) {
   }
 }
 const email = (await ask("BOOTSTRAP_EMAIL", "Admin email: ")).trim().toLowerCase();
-const phone = (await ask("BOOTSTRAP_PHONE", "Admin phone (059/056…): ")).trim();
+// The phone is optional for administrators (they sign in with email); a unique non-dialable
+// placeholder keeps the Users.Phone unique index satisfied without blocking real shop numbers.
+const phoneInput = (optional ? process.env.BOOTSTRAP_PHONE ?? "" : await ask("BOOTSTRAP_PHONE", "Admin phone (059/056…, optional): ")).trim();
 const password = await ask("BOOTSTRAP_PASSWORD", "Admin password (12+ chars): ");
 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 150) throw new Error("Bootstrap email must be valid.");
 if (password.length < 12) throw new Error("Password must be at least 12 characters.");
-if (!/^0(59|56)\d{7}$/.test(phone)) throw new Error("Phone must start with 059 or 056 and have 10 digits.");
+if (phoneInput && !/^0(59|56)\d{7}$/.test(phoneInput)) throw new Error("BOOTSTRAP_PHONE must start with 059 or 056 and have 10 digits (or be left empty).");
+const phone = phoneInput || `admin:${email}`;
 const reset = process.env.BOOTSTRAP_RESET === "true";
 if (password !== password.trim())
   console.log("[bootstrap-admin] WARNING: BOOTSTRAP_PASSWORD starts or ends with a space; it is used exactly as stored.");
@@ -58,7 +61,7 @@ try {
         await tx`UPDATE "LoginSessions" SET "Active" = false WHERE "UserId" = ${user.Id}`;
         return "reset";
       }
-      const [phoneOwner] = await tx`SELECT "Id", "ShopId" FROM "Users" WHERE "Phone" = ${phone}`;
+      const [phoneOwner] = phoneInput ? await tx`SELECT "Id", "ShopId" FROM "Users" WHERE "Phone" = ${phone}` : [];
       if (phoneOwner?.ShopId) throw new Error(`BOOTSTRAP_PHONE ${phone} belongs to a shop account; use a different phone.`);
       if (phoneOwner) {
         // Same admin phone, new email: update that platform account.
