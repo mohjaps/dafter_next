@@ -23,6 +23,7 @@ npm run dev
 - Shop / staff login: http://localhost:3000/login. The login code is shown on screen when `OTP_EXPOSE_DEVELOPMENT_CODE=true`.
 - Platform admin: http://localhost:3000/admin/login
 - Health: `/health` and `/health/ready` (checks the database and migrations)
+- API reference (Scalar): http://localhost:3000/docs, generated from `public/openapi.json`. The Scalar bundle is self-hosted: `postinstall` copies it to `public/scalar/`.
 
 ## Deploy to Vercel
 

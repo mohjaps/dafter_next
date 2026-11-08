@@ -15,9 +15,12 @@
     "type-check": "tsc --noEmit",
     "test": "node --test \"tests/unit/*.test.mjs\"",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
-    "db:bootstrap-admin": "node --env-file-if-exists=.env.local scripts/bootstrap-admin.mjs"
+    "db:bootstrap-admin": "node --env-file-if-exists=.env.local scripts/bootstrap-admin.mjs",
+    "postinstall": "node scripts/copy-scalar.mjs"
   },
   "dependencies": {
+    "@scalar/api-reference": "^1.77.0",
+    "@scalar/nextjs-api-reference": "^0.12.16",
     "decimal.js": "^10.6.0",
     "lucide-react": "^1.70.0",
     "next": "^16.4.5",
