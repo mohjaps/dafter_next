@@ -1,0 +1,11 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+const source=readFileSync(new URL('../../src/client/live/money.ts',import.meta.url),'utf8');
+const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2023}}).outputText;
+const {cents,lineTotal}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
+assert.equal(cents('19.99'),1999);assert.equal(cents('0.01'),1);assert.equal(cents(''),0);
+assert.throws(()=>cents('-1'));assert.throws(()=>cents('1.005'));assert.throws(()=>cents('1e3'));
+assert.equal(lineTotal(0.145,100),15);assert.equal(lineTotal(0.375,400),150);assert.equal(lineTotal(1.5,200),300);assert.equal(lineTotal(2,12000),24000);
+assert.equal(lineTotal(0.001,500),1);assert.equal(lineTotal(0.001,499),0);assert.equal(lineTotal(1.0001,100),0);
+console.log('PASS exact decimal quantities, half-cent rounding, integer cents and invalid money inputs');

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+import {readFileSync} from 'node:fs';
+const source=readFileSync(new URL('../../src/client/live/returnMoney.ts',import.meta.url),'utf8');
+const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2023}}).outputText;
+const {returnAmount}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+assert.equal(returnAmount(2399,2,0,1),1200);assert.equal(returnAmount(2399,2,1,1),1199);
+assert.equal(returnAmount(1,1,0,.5),1);assert.equal(returnAmount(1,1,.5,.5),0);
+assert.equal(returnAmount(300,3,1,2),200);assert.equal(returnAmount(0,3,0,3),0);
+let sum=0;for(let i=0;i<1000;i++)sum+=returnAmount(999999999999,1,i/1000,.001);assert.equal(sum,999999999999);
+assert.throws(()=>returnAmount(100,1,1,.001));assert.throws(()=>returnAmount(100,1,0,-1));assert.throws(()=>returnAmount(100,0,0,0));
+console.log('PASS return cumulative rounding, discounted carton remainder, free lines, weighted quantities and over-return protection');

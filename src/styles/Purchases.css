@@ -1,0 +1,323 @@
+.purchase-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.purchase-summary article {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 20px;
+}
+
+.purchase-summary span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-bottom: 15px;
+}
+
+.purchase-summary strong {
+  color: var(--primary);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.purchase-secondary {
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--primary);
+}
+
+.purchase-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.purchase-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--muted);
+  flex: 1;
+  min-width: 200px;
+}
+
+.purchase-search input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  font-size: 11px;
+  padding: 13px 0;
+}
+
+.purchase-search:focus-within {
+  border-color: var(--primary);
+}
+
+.purchase-toolbar select {
+  padding: 11px;
+  background: white;
+  color: #56685b;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 11px;
+}
+
+.purchase-create-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 20px;
+  align-items: start;
+}
+
+.purchase-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary);
+  margin-bottom: 23px;
+}
+
+.purchase-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.purchase-form-grid label,
+.purchase-notes,
+.purchase-payment-panel > label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 11px;
+}
+
+.purchase-form-grid input,
+.purchase-form-grid select,
+.purchase-notes textarea,
+.purchase-payment-panel input,
+.purchase-payment-panel select,
+.purchase-lines-table input,
+.purchase-lines-table select {
+  width: 100%;
+  border: 1px solid #dfe5de;
+  border-radius: 6px;
+  padding: 11px;
+  background: white;
+  color: #202d2a;
+  font-size: 11px;
+}
+
+.purchase-form-grid input:focus,
+.purchase-form-grid select:focus,
+.purchase-notes textarea:focus,
+.purchase-payment-panel input:focus,
+.purchase-payment-panel select:focus,
+.purchase-lines-table input:focus,
+.purchase-lines-table select:focus {
+  outline: 2px solid #145c5018;
+  border-color: var(--primary);
+}
+
+.purchase-lines-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 12px;
+}
+
+.purchase-lines-heading .button {
+  font-size: 10px;
+  padding: 10px 12px;
+}
+
+.purchase-hint {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.9;
+  margin: 13px 0;
+}
+
+.purchase-lines-table {
+  min-width: 690px;
+}
+
+.purchase-lines-table td,
+.purchase-lines-table th {
+  padding: 12px 8px;
+}
+
+.purchase-lines-table input {
+  width: 90px;
+}
+
+.purchase-lines-table select {
+  min-width: 130px;
+}
+
+.purchase-lines-table td:first-child select {
+  min-width: 185px;
+}
+
+.purchase-unit-note {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  margin-top: 7px;
+  line-height: 1.8;
+}
+
+.purchase-delete {
+  color: #b56656;
+}
+
+.purchase-notes {
+  margin-top: 24px;
+}
+
+.purchase-notes textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.purchase-payment-panel > label {
+  margin-top: 21px;
+}
+
+.purchase-payment-panel > h2 {
+  margin-bottom: 8px;
+}
+
+.purchase-totals {
+  margin-top: 24px;
+  padding-top: 19px;
+  border-top: 1px solid var(--border);
+}
+
+.purchase-totals > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 17px;
+  font-size: 11px;
+}
+
+.purchase-totals > div > span {
+  color: var(--muted);
+}
+
+.purchase-totals .purchase-grand-total {
+  color: var(--primary);
+  font-size: 19px;
+  padding: 7px 0;
+}
+
+.purchase-save {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.purchase-error,
+.purchase-success {
+  font-size: 11px;
+  line-height: 1.9;
+  padding: 12px;
+  border-radius: 7px;
+  margin-bottom: 17px;
+}
+
+.purchase-error {
+  color: #b34d41;
+  background: #fff0ed;
+}
+
+.purchase-success {
+  color: #317047;
+  background: #eaf4ed;
+}
+
+.purchase-empty {
+  text-align: center;
+  padding: 40px 15px;
+  color: var(--muted);
+}
+
+.purchase-details {
+  width: min(750px, calc(100% - 28px));
+  max-height: 90dvh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  background: white;
+  color: #202d2a;
+  scrollbar-width: thin;
+  scrollbar-color: #8eafa1 transparent;
+}
+
+.purchase-details::backdrop {
+  background: #102b2370;
+}
+
+.purchase-details > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: start;
+}
+
+.purchase-details > header h2 {
+  font-size: 16px;
+}
+
+.purchase-details > header p {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 10px;
+  line-height: 1.8;
+}
+
+@media (max-width: 1200px) {
+  .purchase-create-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .purchase-summary {
+    gap: 8px;
+  }
+
+  .purchase-summary article {
+    padding: 13px 10px;
+  }
+
+  .purchase-summary span {
+    font-size: 9px;
+    line-height: 1.8;
+  }
+
+  .purchase-summary strong {
+    font-size: 15px;
+  }
+
+  .purchase-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-toolbar select {
+    flex: 1;
+  }
+}

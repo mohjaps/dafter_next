@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    name: Type-check, lint, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  integration:
+    name: API integration tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: daftar
+          POSTGRES_PASSWORD: daftar
+          POSTGRES_DB: daftar
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U daftar" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://daftar:daftar@localhost:5432/daftar
+      OTP_EXPOSE_DEVELOPMENT_CODE: "true"
+      DAFTAR_TEST_ADMIN_EMAIL: admin@example.com
+      DAFTAR_TEST_ADMIN_PASSWORD: ci-admin-password-123
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run db:bootstrap-admin
+        env:
+          BOOTSTRAP_EMAIL: admin@example.com
+          BOOTSTRAP_PHONE: "0591111111"
+          BOOTSTRAP_PASSWORD: ci-admin-password-123
+      - name: Start API (development mode, exposes OTP codes)
+        run: |
+          npx next dev -p 3000 > next.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/health/ready && break; sleep 1; done
+      - run: python tests/integration/smoke.py --base-url http://localhost:3000
+      - run: python tests/integration/returns.py --base-url http://localhost:3000
+      - if: failure()
+        run: tail -n 200 next.log

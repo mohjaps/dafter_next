@@ -1,0 +1,72 @@
+:root {
+  font-family: "Alexandria", sans-serif;
+  color: #202d2a;
+  background: #f6f5f0;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --primary: #145c50;
+  --primary-dark: #104b41;
+  --background: #f6f5f0;
+  --border: #e7eae5;
+  --muted: #78817d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 360px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #c69a48;
+  outline-offset: 4px;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
