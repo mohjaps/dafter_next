@@ -31,11 +31,10 @@ npm run dev
 3. Set the environment variables (Project → Settings → Environment Variables):
    - `SESSION_SECRET`: 32+ random characters (`openssl rand -hex 32`). **Required.**
    - `OTP_PROVIDER_URL` and `OTP_PROVIDER_TOKEN`: your SMS gateway (HTTPS). The API POSTs `{"phone","code"}` with a Bearer token.
-4. From your machine, initialise the production database once:
-   ```bash
-   DATABASE_URL="<production url>" npm run db:migrate
-   DATABASE_URL="<production url>" npm run db:bootstrap-admin
-   ```
+4. To create the first admin, also add `BOOTSTRAP_EMAIL`, `BOOTSTRAP_PHONE` and `BOOTSTRAP_PASSWORD` (12+ characters).
+   Vercel runs `vercel-build`, which **applies the database schema and creates that admin automatically** before building.
+   Both steps are idempotent: later deploys skip the admin because one already exists. You can then delete `BOOTSTRAP_PASSWORD`.
+   (You can also run `npm run db:migrate` / `npm run db:bootstrap-admin` yourself with `DATABASE_URL` set.)
 5. Deploy. Every push to `main` redeploys automatically.
 
 > **No SMS provider yet?** Shop logins need an OTP. For a short demo only, you can set `OTP_EXPOSE_DEVELOPMENT_CODE=true` **and** `OTP_ALLOW_INSECURE_DEMO_CODE=true`. The code is then returned to the browser, so **anyone who knows a shop phone number can log in**. Remove both before real use.
@@ -47,7 +46,7 @@ npm run dev
 | `npm run dev` / `build` / `start` | Next.js dev server / production build / production server |
 | `npm run type-check` / `lint` | TypeScript and ESLint |
 | `npm test` | Unit tests (money rounding, return amounts) |
-| `npm run db:migrate` | Applies `db/schema.sql` (idempotent) |
+| `npm run db:migrate` | Applies `db/schema.sql` (idempotent; also runs automatically on Vercel builds) |
 | `npm run db:bootstrap-admin` | Creates the first platform admin, default plan and settings |
 | `python tests/integration/smoke.py --base-url http://localhost:3000` | Full API integration suite (needs a disposable DB, `OTP_EXPOSE_DEVELOPMENT_CODE=true`, `DAFTAR_TEST_ADMIN_EMAIL/PASSWORD`) |
 | `python tests/integration/returns.py --base-url …` | Sales/purchase returns integration suite |

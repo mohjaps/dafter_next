@@ -3,7 +3,12 @@ import { readFile } from "node:fs/promises";
 import postgres from "postgres";
 
 const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+const optional = process.argv.includes("--optional");
 if (!url) {
+  if (optional) {
+    console.log("[migrate] DATABASE_URL not set; skipping database migration.");
+    process.exit(0);
+  }
   console.error("Set DATABASE_URL (see .env.example).");
   process.exit(1);
 }

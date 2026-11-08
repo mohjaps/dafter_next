@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "node scripts/migrate.mjs --optional && node scripts/bootstrap-admin.mjs --optional && next build",
     "start": "next start",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",

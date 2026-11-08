@@ -1,10 +1,17 @@
 // Creates the first platform administrator (and a default plan/settings row) once.
 // Usage: BOOTSTRAP_EMAIL=... BOOTSTRAP_PHONE=059xxxxxxx BOOTSTRAP_PASSWORD=... npm run db:bootstrap-admin
+// With --optional (used by the Vercel build) it never prompts and never fails the build:
+// it skips when the variables are missing or an administrator already exists.
 import { pbkdf2Sync, randomBytes, randomUUID } from "node:crypto";
 import { createInterface } from "node:readline/promises";
 import postgres from "postgres";
 
 const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+const optional = process.argv.includes("--optional");
+if (optional && (!url || !process.env.BOOTSTRAP_EMAIL || !process.env.BOOTSTRAP_PHONE || !process.env.BOOTSTRAP_PASSWORD)) {
+  console.log("[bootstrap-admin] BOOTSTRAP_EMAIL/PHONE/PASSWORD not all set; skipping.");
+  process.exit(0);
+}
 if (!url) throw new Error("Set DATABASE_URL.");
 async function ask(name, question) {
   if (process.env[name]) return process.env[name];
@@ -33,9 +40,12 @@ const hash = Buffer.concat([header, salt, pbkdf2Sync(password, salt, 100_000, 32
 
 const sql = postgres(url, { max: 1, onnotice: () => {} });
 try {
-  await sql.begin(async (tx) => {
+  const result = await sql.begin(async (tx) => {
     const [existing] = await tx`SELECT 1 FROM "Users" WHERE "Role" = 'PlatformAdmin' LIMIT 1`;
-    if (existing) throw new Error("An administrator already exists. Bootstrap does not overwrite accounts.");
+    if (existing) {
+      if (optional) return "exists";
+      throw new Error("An administrator already exists. Bootstrap does not overwrite accounts.");
+    }
     await tx`INSERT INTO "Users" ("Id", "ShopId", "Name", "Phone", "Email", "PasswordHash", "Role", "Active")
       VALUES (${randomUUID()}, NULL, 'مدير النظام', ${phone}, ${email}, ${hash}, 'PlatformAdmin', true)`;
     const [plan] = await tx`SELECT 1 FROM "Plans" LIMIT 1`;
@@ -43,7 +53,9 @@ try {
     const [settings] = await tx`SELECT 1 FROM "PlatformSettings" LIMIT 1`;
     if (!settings) await tx`INSERT INTO "PlatformSettings" ("Id", "Name", "Phone", "Email", "GraceDays") VALUES (${randomUUID()}, 'دفتر', '', '', 3)`;
   });
-  console.log("Administrator created. Remove BOOTSTRAP_PASSWORD from your environment.");
+  console.log(result === "exists"
+    ? "[bootstrap-admin] An administrator already exists; nothing changed. You can delete BOOTSTRAP_PASSWORD now."
+    : "Administrator created. Remove BOOTSTRAP_PASSWORD from your environment.");
 } finally {
   await sql.end();
 }
