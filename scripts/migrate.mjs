@@ -12,6 +12,10 @@ if (!url) {
   console.error("Set DATABASE_URL (see .env.example).");
   process.exit(1);
 }
+if (!/^postgres(ql)?:\/\//.test(url)) {
+  console.error("[migrate] DATABASE_URL must start with postgres:// — use Prisma's *direct* connection string, not prisma+postgres://");
+  process.exit(1);
+}
 const sql = postgres(url, { max: 1, onnotice: () => {} });
 try {
   const schema = await readFile(new URL("../db/schema.sql", import.meta.url), "utf8");

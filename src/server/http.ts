@@ -2,7 +2,7 @@ import "server-only";
 import { Actor } from "./actor";
 import { ApiFault } from "./rules";
 import { stringify } from "./lines";
-import { CSRF_COOKIE, SESSION_COOKIE, clearCookie, rateLimited, readCookie, same, sign } from "./security";
+import { CSRF_COOKIE, ConfigError, SESSION_COOKIE, clearCookie, rateLimited, readCookie, same, sign } from "./security";
 
 export type Ctx = {
   req: Request;
@@ -156,6 +156,15 @@ export async function dispatch(router: Router, req: Request, path: string): Prom
 
 function failure(e: unknown): Response {
   if (e instanceof ApiFault) return problem(e.status, e.message);
+  if (e instanceof ConfigError) {
+    console.error(e.message);
+    return problem(503, e.message);
+  }
+  const code = (e as { code?: string })?.code;
+  if (code && ["ECONNREFUSED", "ENOTFOUND", "ETIMEDOUT", "CONNECT_TIMEOUT", "28P01", "3D000"].includes(code)) {
+    console.error("Database connection failed", e);
+    return problem(503, `تعذر الاتصال بقاعدة البيانات (${code}). راجع DATABASE_URL في Vercel.`);
+  }
   const pg = e as { code?: string; name?: string };
   if (pg?.code === "23505") return problem(409, "السجل أو الباركود أو الهاتف موجود بالفعل.");
   if (pg?.code === "22003" || pg?.code === "22P02") return problem(400, "قيمة رقمية خارج النطاق.");

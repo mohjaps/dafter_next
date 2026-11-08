@@ -1,11 +1,19 @@
 import "server-only";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
+/** A deployment setting is missing or invalid; the message (Arabic + English) is safe to show. */
+export class ConfigError extends Error {}
+
 let warned = false;
 function secret(): string {
   const value = process.env.SESSION_SECRET ?? "";
   if (value.length >= 32) return value;
-  if (process.env.NODE_ENV === "production") throw new Error("SESSION_SECRET must be set to at least 32 characters.");
+  if (process.env.NODE_ENV === "production")
+    throw new ConfigError(
+      value
+        ? `إعداد الخادم ناقص: SESSION_SECRET قصير (${value.length} حرفًا) ويجب ألا يقل عن 32 حرفًا. عدّله في Vercel ثم أعد النشر. (SESSION_SECRET must be at least 32 characters.)`
+        : "إعداد الخادم ناقص: أضف SESSION_SECRET (32 حرفًا على الأقل) في Vercel ثم أعد النشر. (SESSION_SECRET is not set.)",
+    );
   if (!warned) {
     console.warn("SESSION_SECRET is not set; using an insecure development secret.");
     warned = true;

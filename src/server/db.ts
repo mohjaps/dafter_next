@@ -1,13 +1,16 @@
 import "server-only";
 import postgres from "postgres";
 import Decimal from "decimal.js";
+import { ConfigError } from "./security";
 
 Decimal.set({ precision: 40, rounding: Decimal.ROUND_HALF_UP });
 
 /** Postgres client. Reuses one pool per server instance (and across hot reloads in dev). */
 function create() {
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
-  if (!url) throw new Error("Set DATABASE_URL (see .env.example).");
+  if (!url) throw new ConfigError("إعداد الخادم ناقص: أضف DATABASE_URL في Vercel ثم أعد النشر. (DATABASE_URL is not set.)");
+  if (!/^postgres(ql)?:\/\//.test(url))
+    throw new ConfigError("DATABASE_URL يجب أن يبدأ بـ postgres:// — استخدم رابط الاتصال المباشر من Prisma وليس prisma+postgres://. (Use the direct postgres:// URL.)");
   return postgres(url, {
     max: Number(process.env.DATABASE_POOL_MAX || 5),
     idle_timeout: 20,

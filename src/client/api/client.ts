@@ -26,8 +26,10 @@ async function csrf(): Promise<string> {
     signal: AbortSignal.timeout(15000),
   })
     .then(async (response) => {
-      if (!response.ok)
-        throw new ApiError(response.status, "تعذر بدء جلسة الطلب.");
+      if (!response.ok) {
+        const problem = await response.json().catch(() => ({}));
+        throw new ApiError(response.status, problem.title || `تعذر بدء جلسة الطلب (${response.status}).`);
+      }
       return ((await response.json()) as { token: string }).token;
     })
     .catch((error) => {
